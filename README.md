@@ -1,16 +1,16 @@
-# Human vs AI Essay Classifier
+ Human vs AI Essay Classifier
 
 Binary classifier to distinguish AI-generated vs human-written essays using the Kaggle dataset `balanced_ai_human_prompts.csv`. Built with scikit-learn and managed with uv for reproducible environments.
 
-## Team Members
+ Team Members
 
-| AC.NO | Name | Role | Contributions |
-|----|------|------|---------------|
-| 1 | Your Name | Lead | Data prep, modeling |
-| 2 | Teammate | Analyst | EDA, visualization |
-| 3 | Teammate | Engineer | Evaluation, packaging |
+|  AC.NO   | Name                 | Role    | Contributions        |
+|----------|----------------------|---------|----------------------|
+| 202174119| Amr Tarek Al-Hammadi | Lead    | Data prep, modeling  |
+|                                 | Analyst | EDA, visualization   |
+|                                 | Engineer| Evaluation, packaging|
 
-## Installation and Setup
+ Installation and Setup
 
 Prerequisites
 - Python 3.12+
@@ -24,7 +24,7 @@ Steps
   - `uv venv --python 3.12`
   - `uv run python --version`
 
-## Project Structure
+ Project Structure
 
 ```
 project/
@@ -46,7 +46,7 @@ project/
 - docs/
 ```
 
-## Usage
+ Usage
 
 Train (uses the CSV in `data/` by default):
 - `uv run python main.py train --data data/balanced_ai_human_prompts.csv --model-path models/model.joblib`
@@ -70,11 +70,11 @@ Notes
 - The script creates a stratified train/test split (80/20) on-the-fly from the provided CSV. The label column is `generated` ("1" = AI-generated, "0" = human).
 - The model is a scikit-learn pipeline: TF-IDF (word + bigram) + Linear SVM.
 
-## Results
+ Results
 
 After training, the script prints accuracy, precision, recall, and F1 on the test set and saves the model to `models/model.joblib`.
 
-## Contributing
+ Contributing
 
 - Create a feature branch: `git checkout -b feature-name`
 - Commit with clear messages and keep changes focused.
