@@ -53,6 +53,7 @@ Train (uses the CSV in `data/` by default):
 
 Evaluate on the test split:
 - `uv run python main.py evaluate --data data/balanced_ai_human_prompts.csv --model-path models/model.joblib`
+- Exports to `docs/`: `confusion_matrix.png`, `classification_report.txt`, and `metrics.json`.
 
 Predict a single text input:
 - `uv run python main.py predict --model-path models/model.joblib --text "Your essay text here..."`

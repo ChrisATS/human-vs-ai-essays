@@ -12,6 +12,13 @@ from src.models.model import (
     tune_pipeline,
 )
 from src.app.gui import run_gui
+from src.utils.metrics import (
+    gen_confusion_matrix,
+    gen_classification_report_text,
+    plot_confusion_matrix,
+    save_classification_report,
+    save_metrics_json,
+)
 
 
 def cmd_train(args: argparse.Namespace) -> None:
@@ -53,6 +60,17 @@ def cmd_evaluate(args: argparse.Namespace) -> None:
         "recall": round(metrics["recall"], 4),
         "f1": round(metrics["f1"], 4),
     })
+
+    # Exports: confusion matrix image and classification report text/json under docs/
+    preds = model.predict(X_test)
+    cm = gen_confusion_matrix(y_test, preds)
+    labels = ["Human", "AI"]
+    plot_confusion_matrix(cm, labels, Path("docs/confusion_matrix.png"))
+
+    report_text = gen_classification_report_text(y_test, preds, target_names=labels)
+    save_classification_report(report_text, Path("docs/classification_report.txt"))
+    save_metrics_json(metrics, Path("docs/metrics.json"))
+    rprint("Saved evaluation artifacts to docs/ (confusion_matrix.png, classification_report.txt, metrics.json)")
 
 
 def cmd_predict(args: argparse.Namespace) -> None:
