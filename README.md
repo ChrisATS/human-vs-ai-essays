@@ -12,9 +12,19 @@ Binary classifier to distinguish AI-generated vs human-written essays using the 
 
  Installation and Setup
 
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
 Prerequisites
 - Python 3.12+
-- uv (https://docs.astral.sh/uv/)
+- uv (https://docs.astral.sh/uv/) or install using the following command in your terminal:
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+```powershell
+python -m pip install "setuptools<58"
+python -m pip install uv
+```
 
 Steps
 - Clone or open this folder.
