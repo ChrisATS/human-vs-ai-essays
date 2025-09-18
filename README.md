@@ -77,6 +77,49 @@ Run the EDA notebook:
 Launch GUI to paste text and get predictions:
 - `uv run python main.py gui`
 
+## ESP32 + MQTT + OpenCV OCR Integration
+
+Architecture
+- ESP32-CAM (or camera source) captures an essay image.
+- ESP-NOW to a gateway ESP32, which forwards the data over Wi‑Fi using MQTT.
+- This project runs an MQTT service that:
+  - Subscribes to `esp32/essay_image` (JPEG base64 or raw bytes) or `esp32/essay_text` (UTF‑8 text/JSON).
+  - If image: uses OpenCV preprocessing + Tesseract OCR to extract text.
+  - Classifies with the trained model and publishes a result JSON to `esp32/essay_result`.
+
+Run the service
+- `uv run python main.py iot --broker localhost --port 1883 --model-path models/model.joblib`
+- Optional if Tesseract is not on PATH: `--tesseract-cmd "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"`
+
+MQTT topics (defaults)
+- Subscribe images: `esp32/essay_image` (payload: raw JPEG bytes or base64 string)
+- Subscribe text: `esp32/essay_text` (payload: plain text or `{ "text": "..." }`)
+- Publish results: `esp32/essay_result` (JSON: `{ time, source, label, pred, excerpt }`)
+
+ESP32 sketch outline
+- Device A (ESP32-CAM): capture JPEG, send via ESP‑NOW in chunks (<=200 bytes) with seq numbers.
+- Device B (ESP32 Wi‑Fi gateway): receive chunks, reassemble JPEG, then `MQTT.publish("esp32/essay_image", base64)`.
+- For simpler integration, you can skip images and just send text lines from ESP‑NOW to the gateway, and publish to `esp32/essay_text`.
+
+External dependency for OCR
+- Install Tesseract on the machine running this service (Windows installer adds Tesseract; on Ubuntu: `sudo apt install tesseract-ocr`).
+- Python packages are handled by uv (opencv-python + pytesseract).
+
+### ESP32 Gateway Upload (Arduino IDE)
+- Board: ESP32 Dev Module (or your specific ESP32 board)
+- Port: COM5 (detected)
+- Open `esp32/gateway_mqtt_bridge/gateway_mqtt_bridge.ino` in Arduino IDE
+- Install ESP32 core (Boards Manager: add `https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json`, then install "esp32")
+- Library: install `PubSubClient` (Library Manager)
+- Create `esp32/gateway_mqtt_bridge/secrets.h` by copying `secrets.h.example` and fill WiFi/MQTT
+- Select Port: COM5
+- Upload
+
+Quick test via Serial
+- Open Serial Monitor (115200 baud)
+- Type: `TEXT: This is a sample essay line...`
+- The gateway publishes to `esp32/essay_text`; the Python service will classify and publish to `esp32/essay_result`.
+
 Notes
 - The script creates a stratified train/test split (80/20) on-the-fly from the provided CSV. The label column is `generated` ("1" = AI-generated, "0" = human).
 - The model is a scikit-learn pipeline: TF-IDF (word + bigram) + Linear SVM.

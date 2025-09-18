@@ -12,6 +12,7 @@ from src.models.model import (
     tune_pipeline,
 )
 from src.app.gui import run_gui
+from src.iot.mqtt_service import run_service as run_mqtt_service
 from src.utils.metrics import (
     gen_confusion_matrix,
     gen_classification_report_text,
@@ -140,6 +141,32 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_gui = subparsers.add_parser("gui", help="Launch desktop GUI for pasting text and predicting")
     p_gui.set_defaults(func=cmd_gui)
+
+    # IoT MQTT service
+    def cmd_iot(args: argparse.Namespace) -> None:
+        run_mqtt_service(
+            broker=args.broker,
+            port=args.port,
+            sub_image_topic=args.sub_image_topic,
+            sub_text_topic=args.sub_text_topic,
+            pub_result_topic=args.pub_result_topic,
+            model_path=Path(args.model_path),
+            username=args.username,
+            password=args.password,
+            tesseract_cmd=args.tesseract_cmd,
+        )
+
+    p_iot = subparsers.add_parser("iot", help="Run MQTT service to receive text/images and publish predictions")
+    p_iot.add_argument("--broker", type=str, default="localhost", help="MQTT broker host")
+    p_iot.add_argument("--port", type=int, default=1883, help="MQTT broker port")
+    p_iot.add_argument("--username", type=str, default=None, help="MQTT username")
+    p_iot.add_argument("--password", type=str, default=None, help="MQTT password")
+    p_iot.add_argument("--sub-image-topic", type=str, default="esp32/essay_image", help="Subscribe topic for images")
+    p_iot.add_argument("--sub-text-topic", type=str, default="esp32/essay_text", help="Subscribe topic for text")
+    p_iot.add_argument("--pub-result-topic", type=str, default="esp32/essay_result", help="Publish topic for predictions")
+    p_iot.add_argument("--model-path", type=str, default="models/model.joblib", help="Path to saved model")
+    p_iot.add_argument("--tesseract-cmd", type=str, default=None, help="Path to tesseract executable if not on PATH")
+    p_iot.set_defaults(func=cmd_iot)
 
     return parser
 
